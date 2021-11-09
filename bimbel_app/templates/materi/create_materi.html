@@ -1,0 +1,369 @@
+{% extends 'base/index.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content %}
+<style type="text/css">
+	.custom_width{
+		width: 3em !important;
+	}
+</style>
+<form method="POST" id="form_assignment" action="{{link}}" enctype="multipart/form-data" autocomplete="off">
+	{%csrf_token%}
+	<div class="row">
+		<div class="col-4">
+			<div class="box">
+				<div class="box-header with-border">
+				  <h4 class="box-title">Detail Materi 
+				  	<a href="{% url 'bimbel_app:list_materi' %}" class="btn btn-md btn-primary">List Materi</a>
+				  	{% if type_ == 'edit' %}
+				  		<a href="{% url 'bimbel_app:create_materi' %}" class="btn btn-md btn-primary">Buat Materi</a>
+				  	{% endif %}
+				  </h4>
+				</div>
+				<div class="box-body">
+				  <div class="form-group row">
+				    <label for="judul" class="col-sm-4 col-form-label">Judul</label>
+				    <div class="col-sm-8">
+				      <input type="text" name="judul" class="form-control form-control-user" required="" placeholder="" value="{{data_materi.judul}}" id="judul">	
+				    </div>
+				  </div>
+				  <div class="form-group row">
+				    <label for="mapel" class="col-sm-4 col-form-label">Mata Pelajaran</label>
+				    <div class="col-8">
+				    	<select id="mapel" name="mapel" class="form-control form-control-user" required="">
+				    		<option value="">- Pilih Mata Pelajaran -</option>
+				    		{% for xx in data_mapel %}
+				    			<option value="{{xx.kode_mapel}}" {% if xx.kode_mapel == data_materi.mata_pelajaran_id %} selected="selected" {% endif %}>{{xx.nama_mapel}}</option>
+				    		{% endfor %}
+				    	</select>
+				    </div>
+				  </div>
+				  <div class="form-group row">
+				    <label for="kelas" class="col-4 col-form-label">Kelas</label>
+				    <div class="col-8">
+				    	<input name="group1" type="radio" id="radio_1" value="all" {% if 'all' == data_materi.kelas or data_materi.kelas == None %} checked {% endif %}/>
+						<label for="radio_1">Semua Kelas</label>
+						<input name="group1" type="radio" id="radio_2" value="except" {% if 'except' == data_materi.kelas %} checked {% endif %}/>
+						<label for="radio_2">Semua Kelas Dengan Pengecualian</label>
+						<input name="group1" type="radio" id="radio_3" value="certain" {% if 'certain' == data_materi.kelas %} checked {% endif %}/>
+						<label for="radio_3">Kelas Tertentu</label>
+				    	
+				    </div>
+				  </div>
+				  <div class="form-group row" id="rincian_kelas" style="display: none;">
+				    <label for="kelas" class="col-4 col-form-label"></label>
+				    <div class="col-8">
+				    	<select id="kelas" name="kelas" style="width: 100%;" multiple="multiple" class="form-control select2_m">
+				    		{% for xx in data_kelas %}
+				    			<option value="{{xx.kode_kelas}}" {% if xx.kode_kelas in data_materi.daftar_kelas %} selected="selected" {% endif %}>{{xx.nama_kelas}}</option>
+				    		{% endfor %}
+				    	</select>
+				    </div>
+				  </div>
+
+				  <div class="row">
+				  	<div class="col-md-4">
+				  		Dokumen Pendukung
+				  	</div>
+				  	<div class="col-8">
+				  		: <input name="filenya" id="filenya" type="file" multiple />
+				  	</div>
+				  </div>
+
+				  {% if type_ == 'edit' %}
+				  	<div class="row mt-35">
+					  	<div class="col-md-4">
+					  		Daftar Dokumen 
+					  	</div>
+					  	<div class="col-8">
+					  		: (<span id="jml_filenya">{{data_materi.file_support|length}}</span> File)
+					  	</div>
+					</div>
+					<div class="row mt-35">
+					  	<div class="col-12">
+					  		 <div class="media-list media-list-divided">
+					  		 	{% for xx in data_materi.file_support %}
+								<div class="media media-single px-0" id="mediasupport_{{forloop.counter}}">
+								  <div class="ml-0 mr-15 bg-primary-light h-50 w-50 l-h-50 rounded text-center">
+								    <span class="font-size-24 text-primary"><i class="fa fa-file-text"></i></span>
+								  </div>
+								  <span class="title font-weight-500 font-size-16" data-toggle="tooltip" title="{{xx|get_filename}}" style="cursor: pointer;">{{xx|get_filename|slice:":15"}}</span>
+								  <a class="font-size-18 text-gray hover-info btn btn-info" href="{{xx|get_link_dbx_file}}"><i class="fa fa-download"></i></a>
+								  <button class="font-size-18 hover-info btn btn-danger" onclick="delete_file(this, '{{data_materi.id_materi|encrypt_this}}', '{{forloop.counter}}', '{{xx}}', event)"><i class="fa fa-trash"></i></button>
+								</div>
+								{% endfor %}
+							  </div>
+					  	</div>
+					</div>
+				  {% endif %}
+				  <!-- <div class="row"> -->
+				  	<div class="col-12 mt-25" style="text-align: right;">
+				  		<input type="submit" class="btn btn-md btn-primary" value="Input">
+				  	</div>
+				  <!-- </div> -->
+				</div>
+			</div>
+		</div>
+
+		<div class="col-8">
+			<div class="box">
+				<div class="box-header with-border">
+				  <h4 class="box-title">Isi Materi</h4>
+				</div>
+				<div class="box-body">
+					<div class="row mb-10">
+						<div class="col-12 mb-10">
+							<textarea name="isi_materi" id="isi_materi">{{data_materi.isi_materi}}</textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+{% endblock %}
+{% block js %}
+<script src="{% static 'vendor_components/ckeditor/ckeditor.js' %}"></script>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		$('[data-toggle="tooltip"]').tooltip();
+		$('#table_user').DataTable( {
+			sort:false,
+			dom: 'Bfrtip',
+			buttons: [
+				'excel', 'pdf'
+			]
+		} );
+		if ('{{type_}}' == 'edit') {
+			$('input:radio').trigger('change');
+		}
+	})
+	$('.select2_m').select2();
+
+	$("#form_assignment").submit(function(event){
+		$('#loading').show();
+	});
+
+	function change_radio(nilai){
+    	if (nilai == 'all') {
+        	$('#rincian_kelas').css('display', 'none');
+        }else if(nilai == 'except'){
+        	$('#rincian_kelas').css('display', '');
+        }else if(nilai == 'certain'){
+        	$('#rincian_kelas').css('display', '');
+        }
+    }
+
+	$('input:radio').change(function(){
+        var nilai =  $('input:radio:checked').val();
+        change_radio(nilai);
+    }); 
+
+	$('#btn_submit').click(function(event){
+		event.preventDefault();
+		if ($('input:radio:checked').val() == undefined) {
+			jawaban = ''
+		}else{
+			jawaban = $('input:radio:checked').val()
+		}
+
+		$.ajax({
+		        type: "POST",
+		        headers: { "X-CSRFToken": csrf_token },
+		        url: $('#form_assignment').attr('action'),
+		        data: {'jawaban': jawaban, 'id_soal':$('#id_soal_').val()},
+		        dataType: 'json',
+		        success: function(res){
+		        	if (res['is_still_available']) {
+		        		if (res['status']) {
+			            	next_soal = parseInt($('#soalke').val())+1
+			            	if ($('#btn_legend_'+next_soal+'').length) {
+
+			            	}else{
+			            		next_soal = next_soal - 1
+			            		msg_pesan('Soal Sudah Selesai ','success');
+			            	}
+			            }else{
+			            	msg_pesan('Input Data Failed. ','error');
+			            }
+		        	}else{
+		        		msg_pesan('Waktu Ujian Sudah Habis. ','error');
+		        		setTimeout(
+						  function() 
+						  {
+						    window.location.href = "{% url 'bimbel_app:list_ujian' %}";
+						  }, 3000);
+		        	}
+		        },
+		        error: function(res){
+		            msg_pesan('Server Error. ','error');
+		        }
+		    });
+	})
+
+	function delete_file(e, xx, yy, aa, ev){
+		ev.preventDefault();
+		
+		$.ajax({
+	        type: "POST",
+	        headers: { "X-CSRFToken": csrf_token },
+	        url: "{% url 'bimbel_app:del_file' %}",
+	        data: {'xx': xx, 'aa':aa},
+	        dataType: 'json',
+	        success: function(res){
+        		if (res['status']) {
+	            	msg_pesan('File Berhasil Dihapus. ','success');
+	            	$('#mediasupport_'+yy+'').remove();
+	            	$('#jml_filenya').text(parseInt($('#jml_filenya').text()) - 1);
+	            }else{
+	            	msg_pesan('Hapus File Gagal. ','error');
+	            }
+	        },
+	        error: function(res){
+	            msg_pesan('Server Error. ','error');
+	        }
+	    });
+	}
+
+	class MyUploadAdapter {
+	    constructor( loader ) {
+	        // The file loader instance to use during the upload.
+	        this.loader = loader;
+	    }
+
+	    // Starts the upload process.
+	    // upload() {
+	    //     return this.loader.file
+	    //         .then( file => new Promise( ( resolve, reject ) => {
+	    //             this._initRequest();
+	    //             this._initListeners( resolve, reject, file );
+	    //             this._sendRequest( file );
+	    //         } ) );
+	    // }
+
+	    upload() {
+		    var reader  = new FileReader();
+
+		    return new Promise( ( resolve, reject ) => {
+		        reader.addEventListener( 'load', () => {
+		            resolve( { default: reader.result } );
+		        });
+
+		        reader.addEventListener( 'error', err => {
+		            reject( err );
+		        });
+
+		        reader.addEventListener( 'abort', () => {
+		            reject();
+		        });                    
+
+		        this.loader.file.then( file => {
+		            reader.readAsDataURL( file );
+		        });                        
+		    })
+		}
+
+	    // Aborts the upload process.
+	    abort() {
+	        if ( this.xhr ) {
+	            this.xhr.abort();
+	        }
+	    }
+
+	    // Initializes the XMLHttpRequest object using the URL passed to the constructor.
+	    _initRequest() {
+	        const xhr = this.xhr = new XMLHttpRequest();
+
+	        // Note that your request may look different. It is up to you and your editor
+	        // integration to choose the right communication channel. This example uses
+	        // a POST request with JSON as a data structure but your configuration
+	        // could be different.
+	        xhr.open( 'POST', "{% url 'bimbel_app:upload_image_soal' %}", true );
+	        xhr.responseType = 'json';
+	    }
+
+	    // Initializes XMLHttpRequest listeners.
+	    _initListeners( resolve, reject, file ) {
+	        const xhr = this.xhr;
+	        const loader = this.loader;
+	        const genericErrorText = `Couldn't upload file: ${ file.name }.`;
+
+	        xhr.addEventListener( 'error', () => reject( genericErrorText ) );
+	        xhr.addEventListener( 'abort', () => reject() );
+	        xhr.addEventListener( 'load', () => {
+	            const response = xhr.response;
+
+	            // This example assumes the XHR server's "response" object will come with
+	            // an "error" which has its own "message" that can be passed to reject()
+	            // in the upload promise.
+	            //
+	            // Your integration may handle upload errors in a different way so make sure
+	            // it is done properly. The reject() function must be called when the upload fails.
+	            if ( !response || response.error ) {
+	                return reject( response && response.error ? response.error.message : genericErrorText );
+	            }
+
+	            // If the upload is successful, resolve the upload promise with an object containing
+	            // at least the "default" URL, pointing to the image on the server.
+	            // This URL will be used to display the image in the content. Learn more in the
+	            // UploadAdapter#upload documentation.
+	            resolve( {
+	                default: response.url
+	            } );
+	        } );
+
+	        // Upload progress when it is supported. The file loader has the #uploadTotal and #uploaded
+	        // properties which are used e.g. to display the upload progress bar in the editor
+	        // user interface.
+	        if ( xhr.upload ) {
+	            xhr.upload.addEventListener( 'progress', evt => {
+	                if ( evt.lengthComputable ) {
+	                    loader.uploadTotal = evt.total;
+	                    loader.uploaded = evt.loaded;
+	                }
+	            } );
+	        }
+	    }
+
+	    // Prepares the data and sends the request.
+	    _sendRequest( file ) {
+	        // Prepare the form data.
+	        const data = new FormData();
+
+	        this.xhr.setRequestHeader("X-CSRFToken", csrf_token)
+	        data.append( 'upload', file );
+	        // Important note: This is the right place to implement security mechanisms
+	        // like authentication and CSRF protection. For instance, you can use
+	        // XMLHttpRequest.setRequestHeader() to set the request headers containing
+	        // the CSRF token generated earlier by your application.
+
+	        // Send the request.
+	        this.xhr.send( data );
+	    }
+	}
+
+	function MyCustomUploadAdapterPlugin( editor ) {
+	    editor.plugins.get( 'FileRepository' ).createUploadAdapter = ( loader ) => {
+	        // Configure the URL to the upload script in your back-end here!
+	        return new MyUploadAdapter( loader );
+	    };
+	}
+
+	let editor;
+
+	ClassicEditor
+	    .create( document.querySelector( '#isi_materi' ), {
+	        extraPlugins: [ MyCustomUploadAdapterPlugin ],
+	        // ...
+	    } )
+	    .then( newEditor => {
+	        editor = newEditor;
+	    } )
+	    .catch( error => {
+	        console.log( error );
+	    } );
+</script>
+{% endblock %}

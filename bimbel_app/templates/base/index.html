@@ -1,0 +1,354 @@
+﻿{% load static %}
+{% load custom_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'images/f_profil/logo_aplikasi.png' %}">
+
+    <title>{{nama_aplikasi}} - Dashboard</title>
+    
+	<!-- Vendors Style-->
+	<link rel="stylesheet" href="{% static 'css/vendors_css.css' %}">
+	  
+	<!-- Style-->  
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" href="{% static 'css/skin_color.css' %}">
+	<link rel="stylesheet" href="{% static 'css/toastr.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+
+
+    <style type="text/css">
+    	.td_center{
+    		text-align: center;
+    	}
+    	.width_nomor_tabel{
+    		width: 5%;
+    	}
+
+    	#loading {
+		    background: url('{% static 'images/preloaders/loading.gif' %}') no-repeat center center;
+		    position: absolute;
+		    top: 0;
+		    left: 0;
+		    height: 100%;
+		    width: 100%;
+		    z-index: 999998;
+		}
+    	
+    	/* Tooltip container */
+		.tooltip {
+		  position: relative;
+		  display: inline-block;
+		  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+		}
+
+		/* Tooltip text */
+		.tooltip .tooltiptext {
+		  visibility: hidden;
+		  width: 120px;
+		  background-color: black;
+		  color: #fff;
+		  text-align: center;
+		  padding: 5px 0;
+		  border-radius: 6px;
+		 
+		  /* Position the tooltip text - see examples below! */
+		  position: absolute;
+		  z-index: 1;
+		}
+
+		/* Show the tooltip text when you mouse over the tooltip container */
+		.tooltip:hover .tooltiptext {
+		  visibility: visible;
+		}
+		
+    </style>
+  </head>
+
+<body class="hold-transition light-skin sidebar-mini theme-primary fixed">
+	<div id="loading"></div>
+	{% if messages %}
+      {% for message in messages %}
+        <div alt="{{message.tags}}" data="{{message}}" id="msg_pesan"></div>
+      {% endfor %}
+    {% endif %}
+	
+<div class="wrapper">
+	<div id="loader"></div>
+	
+  <header class="main-header">
+	<div class="d-flex align-items-center logo-box justify-content-start">
+		<a href="#" class="waves-effect waves-light nav-link d-none d-md-inline-block mx-10 push-btn bg-transparent" data-toggle="push-menu" role="button">
+			<span class="icon-Align-left"><span class="path1"></span><span class="path2"></span><span class="path3"></span></span>
+		</a>	
+		<!-- Logo -->
+		<a href="{% url 'bimbel_app:index' %}" class="logo">
+		  <!-- logo-->
+		  <div class="logo-lg">
+			  <span class="light-logo"><img width="50%" src="{% static 'images/f_profil/logo_aplikasi.png' %}" alt="logo"></span>
+			  <span class="dark-logo"><img src="{% static 'images/logo-light-text.png' %}" alt="logo"></span>
+		  </div>
+		</a>	
+	</div>  
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+	  <div class="app-menu">
+		
+	  </div>
+		
+      <div class="navbar-custom-menu r-side">
+        <ul class="nav navbar-nav">			  
+	      <!-- User Account-->
+          <li class="dropdown user user-menu">
+            <a href="#" class="waves-effect waves-light dropdown-toggle" data-toggle="dropdown" title="User">
+				<i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
+            </a>
+            <ul class="dropdown-menu animated flipInX">
+              <li class="user-body">
+              	{% if level == 'SISWA' %}
+				 <a class="dropdown-item" href="#" onclick="showModal(this,'profil_peserta_didik','edit')" alt="{% url 'bimbel_app:profil_siswa' 'edit' uidpd_|encrypt_this %}"><i class="ti-user text-muted mr-2"></i> Profil</a>
+				 <div class="dropdown-divider"></div>
+				{% elif level == 'GURU' %}
+				<a class="dropdown-item" href="#" onclick="showModal(this,'profil_guru','edit')" alt="{% url 'bimbel_app:profil_guru' 'edit' uidpd_|encrypt_this %}"><i class="ti-user text-muted mr-2"></i> Profil</a>
+				 <div class="dropdown-divider"></div>
+				{% endif %}
+				 <a class="dropdown-item" href="{% url 'bimbel_app:logout' %}"><i class="ti-lock text-muted mr-2"></i> Logout</a>
+              </li>
+            </ul>
+          </li>	
+			
+        </ul>
+      </div>
+    </nav>
+  </header>
+  
+  <aside class="main-sidebar">
+    <!-- sidebar-->
+    <section class="sidebar position-relative">	
+	  	<div class="multinav">
+		  <div class="multinav-scroll" style="height: 100%;">	
+			  <!-- sidebar menu-->
+			  <ul class="sidebar-menu" data-widget="tree">
+			  	<li class="{% ifequal request.resolver_match.url_name 'index' %} active {% endifequal%}"><a href="{% url 'bimbel_app:index' %}"><i class="icon-Layout-4-blocks"><span class="path1"></span><span class="path2"></span></i>Home</a></li>
+
+			  	{% if level == 'ADMIN' %}
+					<li class="header">Master</li>
+					<li class="treeview {% if '/master' in request.path %} active menu-open {% endif %}">
+					  <a href="#">
+						<i class="icon-Layout-4-blocks"><span class="fa fa-database"></span><span></span></i>
+						<span>Master</span>
+						<span class="pull-right-container">
+						  <i class="fa fa-angle-right pull-right"></i>
+						</span>
+					  </a>
+					  <ul class="treeview-menu">
+						<li class="{% if '/usermanagement' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:usermanagement' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>User Management</a></li>
+						<li class="{% if '/mapel' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:mapel' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Mata Pelajaran</a></li>
+						<li class="{% if '/kelas' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:kelas' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Kelas</a></li>
+						<li class="{% if '/kategori-ujian' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:kategori_ujian' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Kategori Ujian</a></li>
+					  </ul>
+					</li>
+					<li class="treeview {% if '/pengajar' in request.path %} active menu-open {% endif %}">
+					  <a href="#">
+						<i span class="icon-Layout-grid"><span class="fa fa-user-o"></span><span></span></i>
+						<span>Pengajar</span>
+						<span class="pull-right-container">
+						  <i class="fa fa-angle-right pull-right"></i>
+						</span>
+					  </a>
+					  <ul class="treeview-menu">
+						<li class="{% if '/guru' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:guru' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Daftar Guru</a></li>
+					  </ul>
+					</li>
+					<li class="treeview {% if '/kesiswaan' in request.path %} active menu-open {% endif %}">
+					  <a href="#">
+						<i span class="icon-Layout-grid"><span class="fa fa-user-o"></span><span></span></i>
+						<span>Kesiswaan</span>
+						<span class="pull-right-container">
+						  <i class="fa fa-angle-right pull-right"></i>
+						</span>
+					  </a>
+					  <ul class="treeview-menu">
+						<li class="{% if '/pesertadidik' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:pesertadidik' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Peserta Didik</a></li>
+						<!-- <li><a href="extra_calendar.html"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Registrasi Online</a></li> -->
+					  </ul>
+					</li>
+					<li class="treeview {% if '/ujian' in request.path %} active menu-open {% endif %}">
+					  <a href="#">
+						<i span class="icon-Layout-grid"><span class="fa fa-mortar-board"></span><span></span></i>
+						<span>Ujian</span>
+						<span class="pull-right-container">
+						  <i class="fa fa-angle-right pull-right"></i>
+						</span>
+					  </a>
+					  <ul class="treeview-menu">
+						<li class="{% if '/list_ujian' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:list_ujian' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>List Ujian</a></li>
+					  </ul>
+					</li>
+					<li class="treeview {% if '/materi' in request.path %} active menu-open {% endif %}">
+					  <a href="#">
+						<i span class="icon-Layout-grid"><span class="fa fa-file-archive-o"></span><span></span></i>
+						<span>Materi</span>
+						<span class="pull-right-container">
+						  <i class="fa fa-angle-right pull-right"></i>
+						</span>
+					  </a>
+					  <ul class="treeview-menu">
+						<li class="{% if '/list_materi' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:list_materi' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Daftar Materi</a></li>
+					  </ul>
+					</li>
+					<li class="treeview {% if '/pengumuman' in request.path %} active menu-open {% endif %}">
+					  <a href="#">
+						<i span class="icon-Layout-grid"><span class="fa fa-info"></span><span></span></i>
+						<span>Pengumuman</span>
+						<span class="pull-right-container">
+						  <i class="fa fa-angle-right pull-right"></i>
+						</span>
+					  </a>
+					  <ul class="treeview-menu">
+						<li class="{% if '/daftar_materi' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:list_announce' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Daftar Pengumuman</a></li>
+					  </ul>
+					</li>
+					<li class="treeview">
+					  <a href="#">
+						<i span class="icon-Layout-grid"><span class="fa fa-gears"></span><span></span></i>
+						<span>Pengaturan</span>
+						<span class="pull-right-container">
+						  <i class="fa fa-angle-right pull-right"></i>
+						</span>
+					  </a>
+					  <ul class="treeview-menu">
+						<li><a href="#" onclick="showModal(this,'sett','add')" alt="{% url 'bimbel_app:setting_aplikasi' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Aplikasi</a></li>
+					  </ul>
+					</li>
+				{% elif level == 'SISWA' %}
+				 <li class="treeview {% if '/ujian' in request.path %} active menu-open {% endif %}">
+					  <a href="#">
+						<i span class="icon-Layout-grid"><span class="fa fa-mortar-board"></span><span></span></i>
+						<span>Ujian</span>
+						<span class="pull-right-container">
+						  <i class="fa fa-angle-right pull-right"></i>
+						</span>
+					  </a>
+					  <ul class="treeview-menu">
+						<li class="{% if '/list_ujian' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:list_ujian' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>List Ujian</a></li>
+					  </ul>
+					</li>
+				{% elif level == 'GURU' %}
+				<li class="treeview {% if '/materi' in request.path %} active menu-open {% endif %}">
+				  <a href="#">
+					<i span class="icon-Layout-grid"><span class="fa fa-file-archive-o"></span><span></span></i>
+					<span>Materi</span>
+					<span class="pull-right-container">
+					  <i class="fa fa-angle-right pull-right"></i>
+					</span>
+				  </a>
+				  <ul class="treeview-menu">
+					<li class="{% if '/list_materi' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:list_materi' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>Daftar Materi</a></li>
+				  </ul>
+				</li>
+				<li class="treeview {% if '/ujian' in request.path %} active menu-open {% endif %}">
+				  <a href="#">
+					<i span class="icon-Layout-grid"><span class="fa fa-mortar-board"></span><span></span></i>
+					<span>Ujian</span>
+					<span class="pull-right-container">
+					  <i class="fa fa-angle-right pull-right"></i>
+					</span>
+				  </a>
+				  <ul class="treeview-menu">
+					<li class="{% if '/list_ujian' in request.path %} active{% endif %}"><a href="{% url 'bimbel_app:list_ujian' %}"><i class="icon-Commit"><span class="path1"></span><span class="path2"></span></i>List Ujian</a></li>
+				  </ul>
+				</li>
+				{% endif %}
+			  </ul>
+		  </div>
+		</div>
+    </section>
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+	  <div class="container-full">
+		<!-- Main content -->
+		<section class="content">
+			{% block content %}
+	  		{% endblock %}
+		</section>
+		<!-- /.content -->
+	  </div>
+  </div>
+  	<div class="modal fade" id="showModal" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog2 modal-dialog modal-lg ">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel"></h5>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body modal-body-showmodal"></div>
+        </div>
+      </div>
+    </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <div class="pull-right d-none d-sm-inline-block">
+        <!-- <ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
+		  <li class="nav-item">
+			<a class="nav-link" href="javascript:void(0)">FAQ</a>
+		  </li>
+		  <li class="nav-item">
+			<a class="nav-link" href="#">Purchase Now</a>
+		  </li>
+		</ul> -->
+    </div>
+	  &copy; 2021 <a href="https://www.multipurposethemes.com/">Multipurpose Themes</a>. All Rights Reserved.
+  </footer>
+  
+  <!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+  
+</div>
+<!-- ./wrapper -->
+	
+	<!-- Page Content overlay -->
+	
+	
+	<!-- Vendor JS -->
+	<script src="{% static 'js/vendors.min.js' %}"></script>
+	<script src="{% static 'vendor_components/select2/dist/js/select2.full.js' %}"></script>
+	<script src="{% static 'vendor_components/moment/min/moment.min.js' %}"></script>
+	<script src="{% static 'vendor_components/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+	<script src="{% static 'js/pages/chat-popup.js' %}"></script>
+    <script src="{% static 'icons/feather-icons/feather.min.js' %}"></script>
+
+	<script src="{% static 'vendor_components/moment/min/moment.min.js' %}"></script>
+	<script src="{% static 'vendor_components/fullcalendar/fullcalendar.js' %}"></script>
+	
+	<!-- EduAdmin App -->
+	<script src="{% static 'js/template.js' %}"></script>
+	<script src="{% static 'js/pages/dashboard.js' %}"></script>
+	<script src="{% static 'js/pages/calendar.js' %}"></script>
+
+	<script src="{% static 'js/toastr.min.js' %}"></script>
+
+	<script src="{% static 'vendor_components/datatable/datatables.min.js' %}"></script>
+	
+	<script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
+	<script src="{% static 'js/main-modul.js' %}"></script>
+
+	<script type="text/javascript">
+		$('#loading').hide();
+		var csrf_token = "{{csrf_token}}";
+	</script>
+	{% block js %}
+	{% endblock %}
+</body>
+
+</html>

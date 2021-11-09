@@ -1,0 +1,97 @@
+{% load static %}
+<div class="bl-3 border-primary h-30 p-5 mb-20"><code>Setelah Disimpan, Anda Akan Diarahkan Ke Halaman Login.</code></div>
+<form method="POST" action="{% url 'bimbel_app:setting_aplikasi' %}" id="frm_siswa" autocomplete="off" enctype="multipart/form-data">
+	{% csrf_token %}
+	  <div class="form-group row">
+	    <label for="nama_siswa" class="col-sm-3 col-form-label">Nama Aplikasi</label>
+	    <div class="col-sm-9">
+	      <input type="text" name="nama_siswa" class="form-control form-control-user" required="" placeholder="Nama Aplikasi / Nama Lembaga" value="{{data_aplikasi.nama}}" id="nama_siswa">	
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="alamat" class="col-sm-3 col-form-label">Alamat</label>
+	    <div class="col-sm-9">
+	    	<textarea style="resize: none;" name="alamat" class="form-control form-control-user" required="" id="alamat">{{data_aplikasi.alamat}}</textarea>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="nohp" class="col-sm-3 col-form-label">No. Handphone/WA</label>
+	    <div class="col-sm-9">
+	      <input type="text" name="nohp" class="form-control form-control-user" maxlength="13" required="" placeholder="NO HANDPHONE / WA" value="{{data_aplikasi.no_hp}}" id="nohp" onkeydown="isPhoneKey(event)">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="foto" class="col-sm-3 col-form-label">Foto</label>
+	    <div class="col-sm-2">
+	    	<img id="frame" src="{% static 'images/f_profil/' %}{{data_aplikasi.foto}}" width="100px" height="120px"/>
+	    </div>
+	    <div class="col-sm-7">
+		    <input type="file" name="foto" class="form-control form-control-user" {% if type_ == 'add' %} required="" {% endif %} placeholder="" onchange="load_image(this)" id="foto" accept="image/*">
+	     </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="email" class="col-sm-3 col-form-label">E-mail</label>
+	    <div class="col-sm-9">
+	      <input type="email" name="email" class="form-control form-control-user" required="" value="{{data_aplikasi.email}}" placeholder="E-mail" id="email">
+	    </div>
+	  </div>
+  <button class="btn btn-primary" >Input</button>
+</form>
+
+<script type="text/javascript">
+	function load_image(input) {
+	   frame.src=URL.createObjectURL(event.target.files[0]);
+	}
+	function do_validation(e, ev){
+		ev.preventDefault();
+
+		if ($("#frm_siswa")[0].checkValidity()) {
+			var todaysDate = new Date();
+			var val_date = new Date($('#tgl_lahir').val());
+
+			var file = $('#foto')[0].files[0];
+			if ("{{type_}}" == 'add') {
+				var fileType = file["type"];
+			}
+			var validImageTypes = ["image/jpg", "image/jpeg", "image/png"];
+			
+			if(val_date.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)) {
+			    msg_pesan('Tanggal Tidak Boleh Sama Dengan Hari Ini. ','error');
+			}else if(val_date.setHours(0,0,0,0) > todaysDate.setHours(0,0,0,0)){
+				msg_pesan('Tanggal Tidak Boleh Lebih Dari Hari Ini. ','error');
+			}else if ($.inArray(fileType, validImageTypes) < 0 && "{{type_}}" == 'add') {
+		    	msg_pesan('Foto Harus Berupa Gambar. ','error');
+			}else if(!validate_login($(e).attr('url-log'), $('#email').val()) && $('#email').val() != "{{data_siswa.0.email}}")
+				msg_pesan('Email Sudah Pernah Dipakai. ','error');
+			else{
+				$( "#frm_siswa" ).submit();
+			}
+			
+		}else{
+			msg_pesan('Pastikan Form Terisi Dengan Benar. ','error');
+			return false;
+		}
+		
+	}
+
+	function validate_login(url, uname){
+		var is_val_log = false;
+
+		$.ajax({
+            type: "POST",
+            headers: { "X-CSRFToken": csrf_token },
+            url: url,
+            data: {'uname':uname},
+            dataType: 'json',
+            async: false,
+            success: function(res){
+                is_val_log = res['status']
+            },
+            error: function(res){
+                msg_pesan('Validasi Akun Login Gagal. Cobalah Beberapa Saat Lagi.','error');
+                is_val_log = false;
+            }
+        });
+    return is_val_log;
+	}
+</script>

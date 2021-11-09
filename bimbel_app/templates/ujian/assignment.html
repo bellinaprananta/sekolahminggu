@@ -1,0 +1,400 @@
+{% extends 'base/index.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content %}
+<style type="text/css">
+	.custom_width{
+		width: 3em !important;
+	}
+</style>
+<div class="row">
+	<div class="col-4">
+		<div class="box">
+			<div class="box-header with-border">
+			  <h4 class="box-title">Detail Soal</h4>
+			</div>
+			<div class="box-body">
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		Judul
+			  	</div>
+			  	<div class="col-md-8">
+			  		: {{data_ujian.judul}}
+			  	</div>
+			  </div>
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		Kategori
+			  	</div>
+			  	<div class="col-md-8">
+			  		: {{data_ujian.kategori.nama_ujian}}
+			  	</div>
+			  </div>
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		MAPEL
+			  	</div>
+			  	<div class="col-md-8">
+			  		: {{data_ujian.mata_pelajaran.nama_mapel}}
+			  	</div>
+			  </div>
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		Durasi
+			  	</div>
+			  	<div class="col-md-8">
+			  		: {{data_ujian.durasi}} Menit
+			  	</div>
+			  </div>
+
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		Jumlah Soal
+			  	</div>
+			  	<div class="col-md-8">
+			  		: {{data_ujian.jml_soal_tampil}} Soal
+			  	</div>
+			  </div>
+			  <!-- <div class="row"> -->
+			  	<div class="col-12" style="text-align: right;">
+			  		<button class="btn btn-md btn-primary" onclick="check_jawaban(this, '{{data_ujian.id_ujian|encrypt_this}}')">Selesai</button>
+			  	</div>
+			  <!-- </div> -->
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12">
+				<div class="box">
+					<div class="box-header with-border">
+					  <h4 class="box-title">SOAL</h4>
+					</div>
+					<div class="box-body">
+					  <div class="row">
+					  	{{data_jawaban_soalnya.0.jawaban}}
+					  	{% with ''|center:data_ujian.jml_soal_tampil as range %}
+						{% for _ in range %}
+						    <!-- {{ forloop.counter }} -->
+						    <div class="mb-1 mr-1">
+						  		<button id="btn_legend_{{forloop.counter}}" onclick="get_soal(this, '{{data_ujian.id_ujian|encrypt_this}}','{{forloop.counter}}')" class="waves-effect waves-light btn btn-social-icon 
+						  		{% if jml_soal == 0 %} 
+						  			{% if forloop.counter == 1 %} btn-warning {% endif %}
+						  		{% else %}
+						  			{% if forloop.counter in arr_data %} btn-success {% endif %}
+						  		{% endif %} 
+						  		btn-github custom_width btn-soal"><strong>{{ forloop.counter }}</strong></button>
+						  	</div>
+						{% endfor %}
+						{% endwith %}
+					  </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-8">
+		<form method="POST" id="form_assignment" action="{% url 'bimbel_app:kerjakan_soal' data_ujian.id_ujian|encrypt_this %}" enctype="multipart/form-data">
+			{%csrf_token%}
+			{% for xx in data_soal %}
+			{% if forloop.first %}
+			<input type="hidden" name="soalke" id="soalke" value="{{xx.no_soal}}">
+			<input type="hidden" name="id_soal_" id="id_soal_" value="">
+			<div class="box">
+				<div class="box-header with-border">
+				  <h4 class="box-title">Soal Nomor : <span id="nomor_soal">{{xx.no_soal}}</span></h4>
+				</div>
+				<div class="box-body">
+					<div class="row mb-10">
+							
+								<div class="col-12 mb-10">
+									<div id="soal">
+										{{xx.uraian_soal | safe}}
+									</div>
+								</div>
+								<div class="col-12 mb-10">
+									<strong>A</strong> 
+									<input name="kunci_jawaban" type="radio" id="key_jawaban1" value="A"/>
+									<label for="key_jawaban1">Jadikan Jawaban</label>
+									<div id="jawaban1">{{xx.jawaban1 | safe}}</div>
+								</div>
+								<div class="col-12 mb-10">
+									<strong>B</strong> 
+									<input name="kunci_jawaban" type="radio" id="key_jawaban2" value="B"/>
+									<label for="key_jawaban2">Jadikan Jawaban</label>
+									<div id="jawaban2">{{xx.jawaban2 | safe}}</div>
+								</div>
+								<div class="col-12 mb-10">
+									<strong>C</strong> 
+									<input name="kunci_jawaban" type="radio" id="key_jawaban3" value="C"/>
+									<label for="key_jawaban3">Jadikan Jawaban</label>
+									<div id="jawaban3">{{xx.jawaban3 | safe}}</div>
+								</div>
+								<div class="col-12 mb-10">
+									<strong>D</strong> 
+									<input name="kunci_jawaban" type="radio" id="key_jawaban4" value="D"/>
+									<label for="key_jawaban4">Jadikan Jawaban</label>
+									<div id="jawaban4">{{xx.jawaban4 | safe}}</div>
+								</div>
+								<div class="col-12 mb-10">
+									<strong>E</strong> 
+									<input name="kunci_jawaban" type="radio" id="key_jawaban5" value="E"/>
+									<label for="key_jawaban5">Jadikan Jawaban</label>
+									<div id="jawaban5">{{xx.jawaban5 | safe}}</div>
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			<input type="submit" id="btn_submit" name="btn_submit" value="Input">
+		</form>
+	</div>
+</div>
+
+{% endblock %}
+{% block js %}
+<script src="{% static 'vendor_components/ckeditor/ckeditor.js' %}"></script>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		$('#table_user').DataTable( {
+			sort:false,
+			dom: 'Bfrtip',
+			buttons: [
+				'excel', 'pdf'
+			]
+		} );
+		get_soal($('#btn_legend_1'), '{{data_ujian.id_ujian|encrypt_this}}','1')
+	})
+
+	function check_jawaban(e, id_ujian){
+		$.ajax({
+	        type: "POST",
+	        headers: { "X-CSRFToken": csrf_token },
+	        url: "{% url 'bimbel_app:check_jawaban' %}",
+	        data: {'id_ujian': id_ujian, 'id_soal':$('#id_soal_').val()},
+	        dataType: 'json',
+	        success: function(res){
+	        	if (!res['is_complete']) {
+	        		Swal.fire({
+		              title: 'Terdapat soal yang belum terisi, tekan \'Biarkan Kosong\' untuk mengabaikan atau tekan \'Cancel\' untuk memeriksa kembali jawaban. \n(Jawaban Tidak Bisa Diperbaiki Apabila Anda Memilih \'Biarkan Kosong\')',
+		              icon: 'warning',
+		              showCancelButton: true,
+		              confirmButtonColor: '#3085d6',
+		              cancelButtonColor: '#d33',
+		              confirmButtonText: 'Biarkan Kosong'
+		            }).then((result) => {
+		              if (result.isConfirmed) {
+		                $.ajax({
+		                    type: "POST",
+		                    headers: { "X-CSRFToken": csrf_token },
+		                    url: "{% url 'bimbel_app:force_empty' %}",
+		                    data: {'id_ujian': id_ujian, 'id_soal':$('#id_soal_').val()},
+		                    dataType: 'json',
+		                    success: function(res){
+		                    	msg_pesan('Sukses. Silahkan Tunggu ...','success');
+		                        setTimeout(
+								  function() 
+								  {
+								    window.location.href = "{% url 'bimbel_app:list_ujian' %}";
+								  }, 3000);
+		                    },
+		                    error: function(res){
+		                        msg_pesan('Hapus Kelas Gagal. ','error');
+		                    }
+		                });
+		              }
+		            });
+	        	}else{
+	        		msg_pesan('Silahkan Tunggu ...','success');
+	        		setTimeout(
+					  function() 
+					  {
+					    window.location.href = "{% url 'bimbel_app:list_ujian' %}";
+					  }, 3000);
+	        	}
+	        },
+	        error: function(res){
+	            msg_pesan('Server Error. ','error');
+	        }
+	    });
+	}
+
+	$('#btn_submit').click(function(event){
+		event.preventDefault();
+		if ($('input:radio:checked').val() == undefined) {
+			jawaban = ''
+		}else{
+			jawaban = $('input:radio:checked').val()
+		}
+
+		$.ajax({
+		        type: "POST",
+		        headers: { "X-CSRFToken": csrf_token },
+		        url: $('#form_assignment').attr('action'),
+		        data: {'jawaban': jawaban, 'id_soal':$('#id_soal_').val()},
+		        dataType: 'json',
+		        success: function(res){
+		        	if (res['is_still_available']) {
+		        		if (res['status']) {
+			            	next_soal = parseInt($('#soalke').val())+1
+			            	if ($('#btn_legend_'+next_soal+'').length) {
+			            		get_soal($('#btn_legend_'+next_soal+''), '{{data_ujian.id_ujian|encrypt_this}}',next_soal)
+			            	}else{
+			            		next_soal = next_soal - 1
+			            		msg_pesan('Soal Sudah Selesai ','success');
+			            	}
+			            }else{
+			            	msg_pesan('Input Data Failed. ','error');
+			            }
+		        	}else{
+		        		msg_pesan('Waktu Ujian Sudah Habis. ','error');
+		        		setTimeout(
+						  function() 
+						  {
+						    window.location.href = "{% url 'bimbel_app:list_ujian' %}";
+						  }, 3000);
+		        	}
+		        },
+		        error: function(res){
+		            msg_pesan('Server Error. ','error');
+		        }
+		    });
+	})
+
+	function get_soal(e, kode_ujian,no_soal){
+		$.ajax({
+	        type: "POST",
+	        headers: { "X-CSRFToken": csrf_token },
+	        url: "{% url 'bimbel_app:get_soaldankunci' %}",
+	        data: {'kode_ujian': kode_ujian, 'no_soal':no_soal,},
+	        dataType: 'json',
+	        success: function(res){
+	            if (res['status']) {
+
+					$('#soalke').val(no_soal);
+		            $('#nomor_soal').text(no_soal);
+		            $('#id_soal_').val(res['data_soal'][0]['id_soal']);
+		            $('.btn-soal').each(function(i, obj) {
+					    if ($(obj).hasClass('btn-warning')) {
+					    	$(obj).removeClass('btn-warning');
+					    }
+					});
+		            $(e).addClass('btn-warning');
+
+	            	if (res['data_soal'].length != 0) {
+		                editor.setData(res['data_soal'][0]['uraian_soal']);
+		                jawaban1_editor_.setData(res['data_soal'][0]['jawaban1']);
+		                jawaban2_editor_.setData(res['data_soal'][0]['jawaban2']);
+		                jawaban3_editor_.setData(res['data_soal'][0]['jawaban3']);
+		                jawaban4_editor_.setData(res['data_soal'][0]['jawaban4']);
+		                jawaban5_editor_.setData(res['data_soal'][0]['jawaban5']);
+		            	
+		            	$('input[name="kunci_jawaban"]').each(function(i, obj){
+		            		if (res['data_jawaban_soalnya'].length != 0) {
+			            		if ($(obj).val() == res['data_jawaban_soalnya'][0]['jawaban']) {
+			            			$(obj).prop('checked', true)
+			            		}else{
+			            			$(obj).prop('checked', false)
+			            		}
+		            		}else{
+		            			$(obj).prop('checked', false)
+		            		}
+						});
+	            	}else{
+	            		editor.setData('');
+		                jawaban1_editor_.setData('');
+		                jawaban2_editor_.setData('');
+		                jawaban3_editor_.setData('');
+		                jawaban4_editor_.setData('');
+		                jawaban5_editor_.setData('');
+	            	}
+	            }
+	        },
+	        error: function(res){
+	            msg_pesan('Retrieving Data Failed. ','error');
+	        }
+	    });
+	}
+
+	let editor;
+	let jawaban1_editor_;
+	let jawaban2_editor_;
+	let jawaban3_editor_;
+	let jawaban4_editor_;
+	let jawaban5_editor_;
+
+	ClassicEditor
+	    .create( document.querySelector( '#soal' ), {
+	        // ...
+	        toolbar: [],
+	    } )
+	    .then( newEditor => {
+	        editor = newEditor;
+	        editor.isReadOnly = true;
+	    } )
+	    .catch( error => {
+	        console.log( error );
+	    } );
+	ClassicEditor
+	    .create( document.querySelector( '#jawaban1' ), {
+	    	toolbar: [],
+	    } )
+	    .then( jawaban1_editor => {
+	        jawaban1_editor_ = jawaban1_editor;
+	        jawaban1_editor_.isReadOnly = true;
+	    } )
+	    .catch( error => {
+	        console.log( error );
+	    } );
+
+	ClassicEditor
+	    .create( document.querySelector( '#jawaban2' ), {
+	    	toolbar: [],
+	    } )
+	    .then( jawaban2_editor => {
+	        jawaban2_editor_ = jawaban2_editor;
+	        jawaban2_editor_.isReadOnly = true;
+	    } )
+	    .catch( error => {
+	        console.log( error );
+	    } );
+
+	ClassicEditor
+	    .create( document.querySelector( '#jawaban3' ), {
+	    	toolbar: [],
+	    } )
+	    .then( jawaban3_editor => {
+	        jawaban3_editor_ = jawaban3_editor;
+	        jawaban3_editor_.isReadOnly = true;
+	    } )
+	    .catch( error => {
+	        console.log( error );
+	    } );
+
+	ClassicEditor
+	    .create( document.querySelector( '#jawaban4' ), {
+	    	toolbar: [],
+	    } )
+	    .then( jawaban4_editor => {
+	        jawaban4_editor_ = jawaban4_editor;
+	        jawaban4_editor_.isReadOnly = true;
+	    } )
+	    .catch( error => {
+	        console.log( error );
+	    } );
+
+	ClassicEditor
+	    .create( document.querySelector( '#jawaban5' ), {
+	    	toolbar: [],
+	    } )
+	    .then( jawaban5_editor => {
+	        jawaban5_editor_ = jawaban5_editor;
+	        jawaban5_editor_.isReadOnly = true;
+	    } )
+	    .catch( error => {
+	        console.log( error );
+	    } );
+</script>
+{% endblock %}

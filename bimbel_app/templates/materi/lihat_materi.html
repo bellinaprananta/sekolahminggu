@@ -1,0 +1,119 @@
+{% extends 'base/index.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content %}
+<style type="text/css">
+	.custom_width{
+		width: 3em !important;
+	}
+</style>
+<div class="row">
+	<div class="col-4">
+		<div class="box">
+			<div class="box-header with-border">
+			  <h4 class="box-title">Detail Materi</h4>
+			</div>
+			<div class="box-body">
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		Judul
+			  	</div>
+			  	<div class="col-md-8">
+			  		: {{data_materi.judul}}
+			  	</div>
+			  </div>
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		MAPEL
+			  	</div>
+			  	<div class="col-md-8">
+			  		: {{data_materi.mata_pelajaran.nama_mapel}}
+			  	</div>
+			  </div>
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		Creator
+			  	</div>
+			  	<div class="col-md-8">
+			  		: {{data_materi.user_input.fullname}}
+			  	</div>
+			  </div>
+			  <div class="row">
+			  	<div class="col-md-3">
+			  		File Pendukung
+			  	</div>
+			  	<div class="col-md-8">
+			  		:  {{data_materi.file_support|length}} File
+			  	</div>
+			  </div>
+			  <div class="row mt-35">
+				  	<div class="col-12">
+				  		 <div class="media-list media-list-divided">
+				  		 	{% for xx in data_materi.file_support %}
+							<div class="media media-single px-0" id="mediasupport_{{forloop.counter}}">
+							  <div class="ml-0 mr-15 bg-primary-light h-50 w-50 l-h-50 rounded text-center">
+							    <span class="font-size-24 text-primary"><i class="fa fa-file-text"></i></span>
+							  </div>
+							  <span class="title font-weight-500 font-size-16" data-toggle="tooltip" title="{{xx|get_filename}}" style="cursor: pointer;">{{xx|get_filename|slice:":35"}}</span>
+							  <a class="font-size-18 text-gray hover-info btn btn-info" href="{{xx|get_link_dbx_file}}"><i class="fa fa-download"></i></a>
+							</div>
+							{% endfor %}
+						  </div>
+				  	</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-8">
+			<input type="hidden" name="soalke" id="soalke" value="{{xx.no_soal}}">
+			<input type="hidden" name="id_soal_" id="id_soal_" value="">
+			<div class="box">
+				<div class="box-header with-border">
+				  <h4 class="box-title">Materi</span></h4>
+				</div>
+				<div class="box-body">
+					<div class="row mb-10">
+						<div class="col-12 mb-10">
+							<div id="soal">
+								{{data_materi.isi_materi | safe}}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+
+{% endblock %}
+{% block js %}
+<script src="{% static 'vendor_components/ckeditor/ckeditor.js' %}"></script>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		$('#table_user').DataTable( {
+			sort:false,
+			dom: 'Bfrtip',
+			buttons: [
+				'excel', 'pdf'
+			]
+		} );
+	})
+
+	let editor;
+
+	ClassicEditor
+	    .create( document.querySelector( '#soal' ), {
+	        // ...
+	        toolbar: [],
+	    } )
+	    .then( newEditor => {
+	        editor = newEditor;
+	        editor.isReadOnly = true;
+	    } )
+	    .catch( error => {
+	        console.log( error );
+	    } );
+</script>
+{% endblock %}

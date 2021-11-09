@@ -1,0 +1,364 @@
+{% extends 'base/index.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+<div class="row">
+	<div class="col-xl-8 col-12">
+		<div class="box bg-primary-light">
+			<div class="box-body d-flex px-0">
+				<div class="flex-grow-1 p-30 flex-grow-1 bg-img dask-bg bg-none-md" style="background-position: right bottom; background-size: auto 100%; background-image: url(https://www.multipurposethemes.com/admin/eduadmin-template/images/svg-icon/color-svg/custom-1.svg)">
+					<div class="row">
+						<div class="col-12 col-xl-7">
+							<h2>Selamat Datang Kembali, <strong>{{fullname}}!</strong></h2>
+							
+							{% if level == 'SISWA' %}
+							<p class="text-dark my-10 font-size-16">
+								<!-- Anda Mempunyai <strong class="text-warning">{{jml_ujian}}</strong> Ujian Yang Belum Diselesaikan. -->
+							</p>
+							{% endif %}
+							<p class="text-dark my-10 font-size-16">
+								Stay Safe From <strong class="text-warning">Covid-19 !</strong>
+							</p>
+							<p class="text-dark my-10 font-size-16">
+								<!-- Stay Safe From <strong class="text-warning">Covid-19 !</strong> -->
+								<strong>{{data_aplikasi.nama}}</strong>
+							</p>
+							<p class="text-dark my-10 font-size-16">
+								<strong>{{data_aplikasi.alamat}}</strong>
+							</p>
+							<p class="text-dark my-10 font-size-16">
+								<strong class="text-warning">{{data_aplikasi.no_hp}}</strong>
+								<strong>{{data_aplikasi.email}}</strong>
+							</p>
+						</div>
+						<div class="col-12 col-xl-5"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		{% if level == 'SISWA' or level == 'GURU' %}
+			<div class="box bg-transparent no-shadow mb-0">
+				<div class="box-header no-border">
+					<h4 class="box-title">Materi</h4>							
+					<div class="box-controls pull-right d-md-flex d-none">
+					  <a href="#">View All</a>
+					</div>
+				</div>
+			</div>
+			<div class="box">
+				<div class="box-body py-0">
+					<div class="table-responsive">
+						<table class="table no-border mb-0">
+							<tbody>
+								{% for xx in data_list_materi %}
+								<tr>
+									<td class="font-weight-600">{{xx.judul}}</td>
+									<td class="font-weight-600">{{xx.mata_pelajaran.nama_mapel}}</td>
+									<td class="text-fade">
+										{% if xx.file_support|length == 1 %} 
+											{% if xx.file_support.0|get_filename|length > 35%} 
+												<span data-toggle="tooltip" style="cursor: pointer;" title="{{xx.file_support.0|get_filename}}" >{{xx.file_support.0|get_filename|slice:'35'}} ...</span> 
+											{% else %} 
+												{{xx.file_support.0|get_filename}} 
+											{% endif %} 
+										{% else %} 
+											{{xx.file_support|length}} File 
+										{% endif %}
+									</td>
+									<td class="font-weight-500"><span class="badge badge-sm badge-dot badge-warning mr-10"></span>{{xx.user_input.fullname.upper}}</td>
+									<td class="text-fade">{{xx.count_see}}x Dilihat</td>
+									<td>
+										<div class="box-controls pull-right d-md-flex d-none">
+										  <a href="{% url 'bimbel_app:lihat_materi' xx.id_materi|encrypt_this %}">Lihat</a>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>	
+		{% endif %}									
+	</div>
+	{% if level == 'ADMIN'%}
+	<div class="col-12">
+		<div class="box bg-primary-light">
+			<div class="box-body d-flex px-0">
+				<div class="flex-grow-1 p-30 flex-grow-1 bg-img dask-bg bg-none-md" style="background-position: right bottom; background-size: auto 100%;">
+					<div class="row">
+						<div class="col-3">
+							<a href="#" class="box bg-primary bg-hover-primary pull-up">
+								<div class="box-body">
+									<div class="d-flex align-items-center">
+										<div class="w-80 h-80 l-h-100 rounded-circle b-1 border-white text-center">
+											<span class="text-white fa fa-user-o font-size-40"><span class="path1"></span><span class="path2"></span></span>
+										</div>
+										<div class="ml-10">
+											<h4 class="text-white mb-0">{{jml_siswa}}</h4>
+											<h5 class="text-white-50 mb-0">SISWA</h5>
+										</div>
+									</div>							
+								</div>
+							</a>
+						</div>
+
+						<div class="col-3">
+							<a href="#" class="box bg-primary bg-hover-primary pull-up">
+								<div class="box-body">
+									<div class="d-flex align-items-center">
+										<div class="w-80 h-80 l-h-100 rounded-circle b-1 border-white text-center">
+											<span class="text-white fa fa-user-o font-size-40"><span class="path1"></span><span class="path2"></span></span>
+										</div>
+										<div class="ml-10">
+											<h4 class="text-white mb-0">{{jml_siswa_baru}}</h4>
+											<h5 class="text-white-50 mb-0">CALON SISWA</h5>
+										</div>
+									</div>							
+								</div>
+							</a>
+						</div>
+
+						<div class="col-3">
+							<a href="#" class="box bg-warning bg-hover-warning pull-up">
+								<div class="box-body">
+									<div class="d-flex align-items-center">
+										<div class="w-80 h-80 l-h-100 rounded-circle b-1 border-white text-center">
+											<span class="text-white fa fa-file-archive-o font-size-40"><span class="path1"></span><span class="path2"></span></span>
+										</div>
+										<div class="ml-10">
+											<h4 class="text-white mb-0">{{jml_ujian_}}</h4>
+											<h5 class="text-white-50 mb-0">MATERI</h5>
+										</div>
+									</div>							
+								</div>
+							</a>
+						</div>
+
+						<div class="col-3">
+							<a href="#" class="box bg-success bg-hover-success pull-up">
+								<div class="box-body">
+									<div class="d-flex align-items-center">
+										<div class="w-80 h-80 l-h-100 rounded-circle b-1 border-white text-center">
+											<span class="text-white fa fa-mortar-board font-size-40"><span class="path1"></span><span class="path2"></span></span>
+										</div>
+										<div class="ml-10">
+											<h4 class="text-white mb-0">{{jml_materi}}</h4>
+											<h5 class="text-white-50 mb-0">UJIAN</h5>
+										</div>
+									</div>							
+								</div>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	{% if level == 'SISWA' %}
+		<div class="col-xl-4 col-12">
+			<div class="box">
+				<div class="box-body">		
+					<div class="box no-shadow mb-0 px-10">
+						<div class="box-header no-border">
+							<h4 class="box-title">Profil Singkat</h4>
+						</div>
+					</div>
+					<div class="px-10">
+						<div class="box bt-5 border-danger rounded">
+							<div class="box-body">	
+								<div class="flex-grow-1">	
+									<div class="d-flex align-items-center pr-2 justify-content-between">							
+										<h4 class="font-weight-500">
+											{{data_guru.nama_siswa}}
+										</h4>
+										<div class="box-controls pull-right d-md-flex d-none">
+										  <img width="100px" height="120px" src="{% static 'images/f_profil/' %}{{data_siswa.foto}}">
+										</div>						
+									</div>
+									
+									<div class="row">
+										<div class="col-md-3">
+									  		Kelas
+									  	</div>
+									  	<div class="col-md-8">
+									  		: {{data_siswa.kelas.nama_kelas}}
+									  	</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+									  		NIS
+									  	</div>
+									  	<div class="col-md-8">
+									  		: {{data_siswa.nis}}
+									  	</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+									  		Alamat
+									  	</div>
+									  	<div class="col-md-8">
+									  		: {{data_siswa.alamat}}
+									  	</div>
+									</div>
+								</div>
+							</div>					
+						</div>
+					</div>
+			
+					<div class="box no-shadow mb-0 px-10">
+						<div class="box-header no-border">
+							<h4 class="box-title">Ujian</h4>							
+							<div class="box-controls pull-right d-md-flex d-none">
+							  <a href="{% url 'bimbel_app:list_ujian' %}">Lihat Semua</a>
+							</div>
+						</div>
+					</div>
+					<div class="px-10">
+						{% for xx in data_list_ujian %}
+						<div class="box mb-15">
+							<div class="box bt-5 border-primary rounded">
+								<div class="box-body">
+									<div class="d-flex align-items-center justify-content-between">
+										<div class="d-flex align-items-center">
+											<div class="mr-15 {% if xx.status.upper == 'TERBIT' %} bg-success {% elif xx.status.upper == 'TUTUP' %} bg-danger {%endif%} h-50 w-70 l-h-60 rounded text-center">
+												<span class="icon-Book-open font-size-24"><span class="path1"></span><span class="path2"></span></span>
+											</div>
+											<div class="d-flex flex-column font-weight-500">
+												<a href="#" class="text-dark hover-primary mb-1 font-size-16">{% if xx.status.upper == 'TUTUP' %} ({{xx.status.upper}}) {%endif%}  {{xx.judul}}</a>
+												<span class="text-fade">{{xx.mata_pelajaran.nama_mapel}}, {{xx.tgl_terbit_auto|to_tgl_indo_with_time}} s/d {{xx.tgl_tutup_auto|to_tgl_indo_with_time}}</span>
+											</div>
+										</div>
+										<!-- <a href="#">
+											<span class="icon-Arrow-right font-size-24"><span class="path1"></span><span class="path2"></span></span>
+										</a> -->
+									</div>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+					
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+	{% if level == 'GURU' %}
+		<div class="col-xl-4 col-12">
+			<div class="box">
+				<div class="box-body">		
+					<div class="box no-shadow mb-0 px-10">
+						<div class="box-header no-border">
+							<h4 class="box-title">Profil Singkat</h4>
+						</div>
+					</div>
+					<div class="px-10">
+						<div class="box bt-5 border-danger rounded">
+							<div class="box-body">	
+								<div class="flex-grow-1">	
+									<div class="d-flex align-items-center pr-2 justify-content-between">							
+										<h4 class="font-weight-500">
+											{{data_guru.nama_guru}}
+										</h4>
+										<div class="box-controls pull-right d-md-flex d-none">
+										  <img width="100px" height="120px" src="{% static 'images/f_profil/' %}{{data_guru.foto}}">
+										</div>						
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+									  		NIP
+									  	</div>
+									  	<div class="col-md-8">
+									  		: {{data_guru.nip}}
+									  	</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+									  		Email
+									  	</div>
+									  	<div class="col-md-8">
+									  		: {{data_guru.email}}
+									  	</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+									  		No.Handphone
+									  	</div>
+									  	<div class="col-md-8">
+									  		: {{data_guru.no_hp}}
+									  	</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+									  		Alamat
+									  	</div>
+									  	<div class="col-md-8">
+									  		: {{data_guru.alamat}}
+									  	</div>
+									</div>
+								</div>
+							</div>					
+						</div>
+					</div>					
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	<div class="col-12">			
+		<div class="box">
+			<div class="box-header">
+				<h4 class="box-title">Pengumuman</h4>
+			</div>
+		</div>
+	  </div>
+	{% for xx in data_pengumuman %}
+	<div class="col-md-6">
+		<div class="box">
+			<div class="box-body"> 
+				<div class="text-left">
+					<h4 class="box-title">Blog title</h4>
+					<p class="my-10">
+					  <small>
+						  <i class="fa fa-user"></i> by <a href="#">John</a> 
+						  <span class="px-10">| </span><i class="fa fa-calendar"></i> Sept 16th, 2018
+					  </small>
+					</p>
+					<p class="box-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+					<a href="#" class="btn btn-flat btn-primary btn-sm">Read more</a>
+				</div>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<div class="box">
+		  <div class="box-body p-0">				  	
+				<h4 class="media-heading mt-15 px-30"><a href="#">{{xx.judul}}</a></h4>
+				<p class="mt-0 mb-5 px-30 bt-1 bb-1 py-10 bg-light">
+				  <i class="fa fa-user"></i> Oleh <a href="#">{{xx.user_input.fullname}}</a> 
+				  | <i class="fa fa-calendar"></i> {{xx.tgl_terbit_auto|to_tgl_indo_with_time}}
+				  | <i class="fa fa-comment"></i> <a href="#">{{xx.count_see}}x Dilihat</a>
+				</p>
+				<div class="media">
+				  <!-- <img class="align-self-start w-160" src="" alt=""> -->
+				  <div class="media-body pengumuman__">
+					{{xx.isi_materi|cleanhtml|slice:":255"|safe}} [...]
+					<a class="btn btn-sm btn-bold btn-primary mt-15" href="{% url 'bimbel_app:lihat_pengumuman' xx.id_pengumuman|encrypt_this %}">Read more</a>
+				  </div>
+				</div>
+		  </div>
+		</div>
+	</div>
+	{% endfor %}
+	
+</div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('.pengumuman__').find('img').remove();
+	})
+	
+</script>
+{% endblock %}

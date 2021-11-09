@@ -1,0 +1,214 @@
+{% load static %}
+{% load custom_tags %}
+<form method="POST" action="{% url 'bimbel_app:tambah_ujian' type_ uuid|encrypt_this %}" id="frm_siswa" autocomplete="off" enctype="multipart/form-data">
+	{% csrf_token %}
+	  <div class="form-group row">
+	    <label for="judul" class="col-sm-3 col-form-label">Judul</label>
+	    <div class="col-sm-9">
+	      <input type="text" name="judul" class="form-control form-control-user" required="" placeholder="" value="{{data_list_ujian.0.judul}}" id="judul">	
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="kategori" class="col-sm-3 col-form-label">Kategori</label>
+	    <div class="col-sm-9">
+	    	<select id="kategori" name="kategori" class="form-control form-control-user" required="">
+	    		<option value="">- Pilih Kategori -</option>
+	    		{% for xx in data_jenis_ujian %}
+	    			<option value="{{xx.kode_ujian}}" {% if xx.kode_ujian == data_list_ujian.0.kategori_id %} selected="selected" {% endif %}>{{xx.nama_ujian}}</option>
+	    		{% endfor %}
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="deskripsi" class="col-sm-3 col-form-label">Deskripsi</label>
+	    <div class="col-sm-9">
+	    	<textarea style="resize: none;" name="deskripsi" class="form-control form-control-user" required="" id="deskripsi">{{data_list_ujian.0.deskripsi}}</textarea>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="mapel" class="col-sm-3 col-form-label">Mata Pelajaran</label>
+	    <div class="col-sm-9">
+	    	<select id="mapel" name="mapel" class="form-control form-control-user" required="">
+	    		<option value="">- Pilih Mata Pelajaran -</option>
+	    		{% for xx in data_mapel %}
+	    			<option value="{{xx.kode_mapel}}" {% if xx.kode_mapel == data_list_ujian.0.mata_pelajaran_id %} selected="selected" {% endif %}>{{xx.nama_mapel}}</option>
+	    		{% endfor %}
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="kelas" class="col-sm-3 col-form-label">Kelas</label>
+	    <div class="col-sm-9">
+	    	<input name="group1" type="radio" id="radio_1" value="all" {% if 'all' == data_list_ujian.0.kelas or data_list_ujian.0.kelas == None %} checked {% endif %}/>
+			<label for="radio_1">Semua Kelas</label>
+			<input name="group1" type="radio" id="radio_2" value="except" {% if 'except' == data_list_ujian.0.kelas %} checked {% endif %}/>
+			<label for="radio_2">Semua Kelas Dengan Pengecualian</label>
+			<input name="group1" type="radio" id="radio_3" value="certain" {% if 'certain' == data_list_ujian.0.kelas %} checked {% endif %}/>
+			<label for="radio_3">Kelas Tertentu</label>
+	    	
+	    </div>
+	  </div>
+	  <div class="form-group row" id="rincian_kelas" style="display: none;">
+	    <label for="kelas" class="col-sm-3 col-form-label"></label>
+	    <div class="col-sm-9">
+	    	<select id="kelas" name="kelas" style="width: 100%;" multiple="multiple" class="form-control select2">
+	    		{% for xx in data_kelas %}
+	    			<option value="{{xx.kode_kelas}}" {% if xx.kode_kelas in data_list_ujian.0.daftar_kelas %} selected="selected" {% endif %}>{{xx.nama_kelas}}</option>
+	    		{% endfor %}
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="durasi" class="col-sm-3 col-form-label">KKM</label>
+	    <div class="col-sm-2">
+	      <input type="text" maxlength="5" name="kkm" class="form-control form-control-user" required="" placeholder="" value="{{data_list_ujian.0.kkm}}" id="kkm" onkeydown="isNumberKey(event)">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="durasi" class="col-sm-3 col-form-label">Durasi (Dalam Menit)</label>
+	    <div class="col-sm-2">
+	      <input type="text" maxlength="3" name="durasi" class="form-control form-control-user" required="" placeholder="" value="{{data_list_ujian.0.durasi}}" id="durasi" onkeydown="isPhoneKey(event)">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="durasi_min" class="col-sm-3 col-form-label">Durasi Minimal</label>
+	    <div class="col-sm-2">
+	      <input type="text" maxlength="3" name="durasi_min" class="form-control form-control-user" required="" placeholder="" value="{{data_list_ujian.0.durasi_minimal}}" id="durasi_min" onkeydown="isPhoneKey(event)">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="urutan_soal" class="col-sm-3 col-form-label">Urutan Soal</label>
+	    <div class="col-sm-2">
+	    	<select id="urutan_soal" name="urutan_soal" class="form-control form-control-user" required="">
+	    		<option value="acak" {% if 'acak' == data_list_ujian.0.urutan_soal %} selected="selected" {% endif %}>Acak</option>
+	    		<option value="urut" {% if 'urut' == data_list_ujian.0.urutan_soal %} selected="selected" {% endif %}>Berurutan</option>
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="jml_soal_tampil" class="col-sm-3 col-form-label">Jumlah Soal Tampil</label>
+	    <div class="col-sm-9">
+	      <input type="text" name="jml_soal_tampil" class="form-control form-control-user" maxlength="13" required="" placeholder="" value="{{data_list_ujian.0.jml_soal_tampil}}" id="jml_soal_tampil" onkeydown="isPhoneKey(event)">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="tgl_terbit" class="col-sm-3 col-form-label">Waktu Publish</label>
+	    <div class="col-sm-5">
+	      <input type="text" name="tgl_terbit" class="form-control form-control-user" required="" placeholder="" value="{{data_list_ujian.0.tanggal_lahir|date:'Y-m-d'}}" id="tgl_terbit">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="penilaian" class="col-sm-3 col-form-label">Penilaian</label>
+	    <div class="col-sm-5">
+	    	<select id="penilaian" name="penilaian" class="form-control form-control-user" required="">
+	    		<option value="sss" {% if 'sss' == data_list_ujian.0.tampilkan_nilai %} selected="selected" {% endif %}>Setelah Siswa Selesai Mengisi Soal</option>
+	    		<option value="sub" {% if 'sub' == data_list_ujian.0.tampilkan_nilai %} selected="selected" {% endif %}>Setelah Ujian Berakhir</option>
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="jawaban" class="col-sm-3 col-form-label">Tampilkan Jawaban</label>
+	    <div class="col-sm-5">
+	    	<select id="jawaban" name="jawaban" class="form-control form-control-user" required="">
+	    		<option value="sss" {% if 'sss' == data_list_ujian.0.tampilkan_jawaban %} selected="selected" {% endif %}>Setelah Siswa Selesai Mengisi Soal</option>
+	    		<option value="sub" {% if 'sub' == data_list_ujian.0.tampilkan_jawaban %} selected="selected" {% endif %}>Setelah Ujian Berakhir</option>
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="password" class="col-sm-3 col-form-label">Password Ujian</label>
+	    <div class="col-sm-5">
+	      <input type="password" name="password" class="form-control form-control-user" required="" value="{{data_list_ujian.0.pwd|decrypt_this}}" placeholder="Password" id="password">
+	    </div>
+	  </div>
+  <button onclick="do_validation(this, event)" class="btn btn-primary" url-log="{% url 'bimbel_app:vali_log' %}">Input</button>
+</form>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		if ('{{type_}}' == 'edit') {
+	    	change_radio($('input:radio:checked').val())
+	    }
+	});
+
+	$('.select2').select2();
+	$('#tgl_terbit').daterangepicker({ timePicker: true, timePicker24Hour: true, timePickerIncrement: 1, format: 'YYYY/MM/DD H:mm' , locale: {
+      format: 'DD/MM/YYYY H:mm'
+    }});
+
+    function change_radio(nilai){
+    	if (nilai == 'all') {
+        	$('#rincian_kelas').css('display', 'none');
+        }else if(nilai == 'except'){
+        	$('#rincian_kelas').css('display', '');
+        }else if(nilai == 'certain'){
+        	$('#rincian_kelas').css('display', '');
+        }
+    }
+
+	$('input:radio').change(function(){
+        var nilai =  $(this).val();
+        change_radio(nilai);
+    }); 
+
+	function load_image(input) {
+	   frame.src=URL.createObjectURL(event.target.files[0]);
+	}
+	function do_validation(e, ev){
+		ev.preventDefault();	
+
+		if ($("#frm_siswa")[0].checkValidity()) {
+			kelas = $('input:radio:checked').val();
+
+			var todaysDate = new Date();
+			var tgl_terbit = new Date($('#tgl_terbit').val());
+			var durasi = parseInt($('#durasi').val());
+			var durasi_min = parseInt($('#durasi_min').val());
+			var kkm = parseFloat($('#kkm').val());
+
+
+			if (kelas != 'all' && $('#kelas').val().length == 0) {
+				msg_pesan('Kelas Tidak Boleh Kosong, atau pilih Semua Kelas. ','error');
+			}else if(durasi<=0){
+				msg_pesan('Durasi Tidak Boleh Kurang Dari 0. ','error')
+			}else if(durasi_min<=0){
+				msg_pesan('Durasi Minimal Tidak Boleh Kurang Dari 0. ','error')
+			}else if(durasi_min > durasi) {
+			    msg_pesan('Durasi Minimal Tidak Boleh Lebih Dari Durasi. ','error');
+			}else if(tgl_terbit.setHours(0,0,0,0) < todaysDate.setHours(0,0,0,0)) {
+			    msg_pesan('Tanggal Terbit Tidak Boleh Kurang Dari Hari Ini. ','error');
+			}else if(kkm > 100) {
+			    msg_pesan('KKM Maximal 100. ','error');
+			}else{
+				$( "#frm_siswa" ).submit();
+				// console.log('Semua Oke')
+			}
+			
+		}else{
+			msg_pesan('Pastikan Form Terisi Dengan Benar. ','error');
+			return false;
+		}
+		
+	}
+
+	function validate_login(url, uname){
+		var is_val_log = false;
+
+		$.ajax({
+            type: "POST",
+            headers: { "X-CSRFToken": csrf_token },
+            url: url,
+            data: {'uname':uname},
+            dataType: 'json',
+            async: false,
+            success: function(res){
+                is_val_log = res['status']
+            },
+            error: function(res){
+                msg_pesan('Validasi Akun Login Gagal. Cobalah Beberapa Saat Lagi.','error');
+                is_val_log = false;
+            }
+        });
+    return is_val_log;
+	}
+</script>

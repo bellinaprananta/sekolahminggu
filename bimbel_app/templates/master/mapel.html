@@ -1,0 +1,67 @@
+{% extends 'base/index.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-8">
+		<div class="box">
+			<div class="box-header with-border">
+			  <h4 class="box-title">Mata Pelajaran</h4>
+			</div>
+			<div class="box-body">
+			  <div class="table-responsive">
+				  <table id="table_user" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+					<thead>
+						<tr>
+							<th class="width_nomor_tabel">NO</th>
+							<th>KODE MAPEL</th>
+							<th>NAMA MAPEL</th>
+							<th class="width_nomor_tabel"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for x in data_mapel %}
+							<tr>
+								<td class="td_center">{{forloop.counter}}</td>
+								<td>{{x.kode_mapel}}</td>
+								<td>{{x.nama_mapel.title}}</td>
+								<td class="td_center">
+									<button class="btn btn-rounded btn-info btn-xs" onclick="edit_mapel(this)" id="btn_edit_user" data-u="{{x.nama_mapel}}" data-id="{{x.kode_mapel}}" edit_url="{% url 'bimbel_app:mapeledit' x.kode_mapel %}"><i class="fa fa-pencil"></i></button>
+									<button class="btn btn-rounded btn-danger btn-xs" onclick="delete_mapel(this)" id="btn_del_user" data-u="{{x.nama_mapel}}" data-id="{{x.kode_mapel}}" del_url="{% url 'bimbel_app:mapeldelete' x.kode_mapel %}"><i class="fa fa-trash"></i></button>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				</div>       
+			</div>
+		</div>
+	</div>
+	<div class="col-4">
+		<div class="box">
+			<div class="box-header with-border">
+			  <h4 class="box-title">Input Data</h4>
+			</div>
+			<div class="box-body">
+			  <form method="POST" action="{% url 'bimbel_app:mapel' %}" id="frm_mapel" autocomplete="off">
+					{% csrf_token %}
+					  <div class="form-group" id="kode_mapel_div">
+					    <label for="exampleInputPassword1">Kode Mata Pelajaran</label>
+					      {{form.kode_mapel}}
+					  </div>
+					  <div class="form-group">
+					      <label for="exampleInputEmail1">Nama Mata Pelajaran</label>
+					      {{form.nama_mapel}}
+					    </div>
+				  <button type="submit" class="btn btn-primary">Input</button>
+				  <a href="{% url 'bimbel_app:mapel' %}" id="cancel_edit" style="display: none;" class="btn btn-danger">Cancel</a>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{% static 'js/page/mapel.js' %}"></script>
+{% endblock %}

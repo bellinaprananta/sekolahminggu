@@ -1,0 +1,108 @@
+{% extends 'base/index.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-12">
+		<div class="box">
+			<div class="box-header with-border">
+			  <h4 class="box-title">List Ujian</h4>
+			</div>
+			<div class="box-body">
+			  <div class="table-responsive">
+				  <table id="table_user" class="table table-bordered table-hover display wrap margin-top-10 w-p100">
+					<thead>
+						<tr>
+							<th class="width_nomor_tabel td_center">NO</th>
+							<th class="td_center">JUDUL</th>
+							<th class="td_center">KATEGORI</th>
+							<th class="td_center">MATA PELAJARAN</th>
+							<th class="td_center">KELAS</th>
+							<th class="width_nomor_tabel td_center">DURASI</th>
+							<th class="width_nomor_tabel td_center">SOAL</th>
+							<th class="td_center">TGL MULAI</th>
+							<th class="td_center">TGL SELESAI</th>
+							<th class="width_nomor_tabel td_center">STATUS</th>
+							<th class="width_nomor_tabel td_center">STATUS UJIAN</th>
+							<th class="width_nomor_tabel td_center">NILAI</th>
+							<th class="width_nomor_tabel"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for x in data_ujian %}
+							<tr>
+								<td class="td_center">{{forloop.counter}}</td>
+								<td>{{x.judul}}</td>
+								<td>{{x.kategori.nama_ujian}}</td>
+								<td>{{x.mata_pelajaran.nama_mapel}}</td>
+								{% if x.kelas == 'all' %}
+									<td>Semua Kelas</td>
+								{% elif x.kelas == 'except' %}
+									<td>Semua Kelas Kecuali : {% for xx in x.daftar_kelas|get_nama_kelas %} {% if not forloop.last %} {{xx}}, {% else %} {{xx}} {% endif %} {% endfor %}</td>
+								{% else %}
+									<td>{% for xx in x.daftar_kelas|get_nama_kelas %} {% if not forloop.last %} {{xx}}, {% else %} {{xx}} {% endif %} {% endfor %}</td>
+								{% endif %}
+								<td class="td_center">{{x.durasi}} Menit</td>
+								<td class="td_center">{{x.jml_soal_tampil}}</td>
+								<td>{{x.tgl_terbit_auto|to_tgl_indo_with_time}}</td>
+								<td>{{x.tgl_tutup_auto|to_tgl_indo_with_time}}</td>
+								{% with x.id_ujian|is_still_available_form:request as is_still_available %}
+								<td class="td_center">
+									{% if is_still_available.1 %}
+										<span class="badge badge-success">Selesai Dikerjakan</span>
+									{% else %}
+										{% if is_still_available.2 %}
+											<span class="badge badge-warning">Proses</span>
+										{% else %}
+											-
+										{% endif %}
+									{% endif %}
+								</td>
+								<td class="td_center">
+									{% if is_still_available.0 %}
+										<span class="badge badge-success">Terbuka</span>
+									{% else %}
+										<span class="badge badge-danger">Ujian Berakhir</span>
+									{% endif %}
+								</td>
+								<td class="td_center">
+									{{x.id_ujian|get_nilai_siswa:request}}
+								</td>
+								<td class="td_center">
+									<div class="btn-group">
+									  <button class="btn btn-xs btn-dark dropdown-toggle" type="button" data-toggle="dropdown">Aksi</button>
+									  <div class="dropdown-menu dropdown-menu-right">
+											{% if is_still_available.0 %}
+												{% if is_still_available.1 %}
+													<a class="dropdown-item" href="{% url 'bimbel_app:lihat_hasil' x.id_ujian|encrypt_this %}" target="_blank">Lihat Hasil</a>
+												{% else %}
+													<a class="dropdown-item" href="{% url 'bimbel_app:kerjakan_soal' x.id_ujian|encrypt_this %}">Kerjakan</a>
+												{% endif %}
+											{% else %}
+												<a class="dropdown-item" href="{% url 'bimbel_app:lihat_hasil' x.id_ujian|encrypt_this %}" target="_blank">Lihat Hasil</a>
+											{% endif %}
+									  </div>
+									</div>
+								</td>
+								{% endwith %}
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				</div>       
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#table_user').DataTable( {
+			sort:false,
+		} );	
+	})
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="">
+
+    <title>Login - Dashboard</title>
+  
+	<!-- Vendors Style-->
+	<link rel="stylesheet" href="{% static 'css/vendors_css.css' %}">
+	  
+	<!-- Style-->  
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" href="{% static 'css/skin_color.css' %}">	
+	<link rel="stylesheet" href="{% static 'css/toastr.min.css' %}">
+</head>
+	
+<body class="hold-transition theme-primary bg-img" style="background-image: url({% static 'images/auth-bg/bg-1.jpg' %})">
+	{% if messages %}
+      {% for message in messages %}
+        <div alt="{{message.tags}}" data="{{message}}" id="msg_pesan"></div>
+      {% endfor %}
+    {% endif %}
+
+	<div class="container h-p100">
+		<div class="row align-items-center justify-content-md-center h-p100">	
+			
+			<div class="col-12">
+				<div class="row justify-content-center no-gutters">
+					<div class="col-lg-5 col-md-5 col-12">
+						<div class="bg-white rounded30 shadow-lg">
+							<div class="content-top-agile p-20 pb-0">
+								<h2 class="text-primary">Login</h2>
+								<p class="mb-0">Login to continue to Dashboard.</p>							
+							</div>
+							<div class="p-40">
+								<form action="" method="POST" autocomplete="off">
+									{% csrf_token %}
+									<div class="form-group">
+										<div class="input-group mb-3">
+											<div class="input-group-prepend">
+												<span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
+											</div>
+											{{form.uname}}
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="input-group mb-3">
+											<div class="input-group-prepend">
+												<span class="input-group-text  bg-transparent"><i class="ti-lock"></i></span>
+											</div>
+											{{form.pwd}}
+										</div>
+									</div>
+									  <div class="row">
+										<!-- /.col -->
+										<div class="col-12">
+										 <!-- <div class="fog-pwd text-right">
+											<a href="javascript:void(0)" class="hover-warning"><i class="ion ion-locked"></i> Lupa Password?</a><br>
+										  </div> -->
+										</div>
+										<!-- /.col -->
+										<div class="col-12 text-center">
+										  <button type="submit" class="btn btn-danger mt-10">LOGIN</button>
+										</div>
+										<!-- /.col -->
+									  </div>
+								</form>	
+							</div>						
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Vendor JS -->
+	<script src="{% static 'js/vendors.min.js' %}"></script>
+	<script src="{% static 'js/pages/chat-popup.js' %}"></script>
+    <script src="{% static 'icons/feather-icons/feather.min.js' %}"></script>
+    <script src="{% static 'js/toastr.min.js' %}"></script>	
+    <script type="text/javascript">
+    	if ($('#msg_pesan').length){
+		  msg_pesan($("#msg_pesan").attr('data'),$("#msg_pesan").attr('alt'));
+		}
+
+		function msg_pesan(meseg,jenis_icon){
+		    toastr.options = {
+		      "closeButton": false,
+		      "debug": false,
+		      "newestOnTop": false,
+		      "progressBar": false,
+		      "positionClass": "toast-top-right",
+		      "preventDuplicates": false,
+		      "onclick": null,
+		      "showDuration": "300",
+		      "hideDuration": "1000",
+		      "timeOut": "5000",
+		      "extendedTimeOut": "1000",
+		      "showEasing": "swing",
+		      "hideEasing": "linear",
+		      "showMethod": "fadeIn",
+		      "hideMethod": "fadeOut"
+		    }
+
+		  toastr[jenis_icon](meseg)
+		}
+    </script>
+</body>
+</html>

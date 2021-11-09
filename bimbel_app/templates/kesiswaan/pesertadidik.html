@@ -1,0 +1,113 @@
+{% extends 'base/index.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-12">
+		<div class="box">
+			<div class="box-header with-border">
+			  <h4 class="box-title">Peserta Didik <button class="btn btn-md btn-primary" onclick="showModal(this,'peserta_didik','add')" alt="{% url 'bimbel_app:tambah_siswa' 'add' 0 %}">Tambah Siswa</button></h4>
+			</div>
+			<div class="box-body">
+			  <div class="table-responsive">
+				  <table id="table_user" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+					<thead>
+						<tr>
+							<th class="width_nomor_tabel">NO</th>
+							<th class="width_nomor_tabel">NO. REGISTRASI</th>
+							<th>NAMA</th>
+							<th class="width_nomor_tabel">KELAS</th>
+							<th class="width_nomor_tabel"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for x in data_siswa %}
+							<tr>
+								<td class="td_center">{{forloop.counter}}</td>
+								<td class="td_center">{{x.uid}}</td>
+								<td><img src="{% static 'images/f_profil/'%}{{x.foto}}" class="avatar avatar-lg rounded10 bg-primary-light" alt=""> {{x.nama_siswa.title}}</td>
+								<td class="td_center">{{x.kelas.nama_kelas}}</td>
+								<td class="td_center">
+									<button class="btn btn-rounded btn-info btn-xs" onclick="showModal(this,'peserta_didik','edit')" alt="{% url 'bimbel_app:tambah_siswa' 'edit' x.uid %}" id="btn_edit_user" data-u="{{x.nama_siswa}}" data-id="{{x.uid}}"><i class="fa fa-pencil"></i></button>
+									<button class="btn btn-rounded btn-danger btn-xs" onclick="delete_siswa(this)" id="btn_del_user" data-u="{{x.nama_siswa}}" data-id="{{x.uid}}" del_url="{% url 'bimbel_app:hapus_siswa' x.uid %}"><i class="fa fa-trash"></i></button>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				</div>       
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#table_user').DataTable( {
+		dom: 'Bfrtip',
+		buttons: [
+			'excel', 'pdf'
+		]
+	} );
+
+		
+	})
+
+	function edit_mapel(e){
+		$.ajax({
+            type: "GET",
+            // headers: { "X-CSRFToken": csrf_token },
+            url: $(e).attr('edit_url'),
+            data: {'kode_mapel':$(e).attr('data-id')},
+            dataType: 'json',
+            success: function(res){
+            	data = res['data_mapel'][0];
+            	$('#id_nama_mapel').val(data['nama_mapel']);
+            	$('#id_kode_mapel').val('s');
+            	$('#kode_mapel_div').css('display', 'none');
+            	$('#cancel_edit').css('display', '');
+            	$('#frm_mapel').attr('action', $(e).attr('edit_url'))
+            },
+            error: function(res){
+                msg_pesan('Hapus Item Gagal. ','error');
+                $('#frm_mapel').attr('action', "{% url 'bimbel_app:mapel' %}");
+                $('#cancel_edit').css('display', 'none');
+            }
+        });
+	};
+
+	function delete_siswa(e){
+		Swal.fire({
+              title: 'Yakin mau menghapus \"'+$(e).attr('data-u')+'\" ?',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Hapus'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                $.ajax({
+                    type: "POST",
+                    headers: { "X-CSRFToken": csrf_token },
+                    url: $(e).attr('del_url'),
+                    data: {'uid':$(e).attr('data-id')},
+                    dataType: 'json',
+                    success: function(res){
+                        if (res['status']) {
+                            msg_pesan('Hapus Siswa Sukses. ','success');
+                            location.reload();
+                        }else{
+                            msg_pesan('Hapus Siswa Gagal. ','error');
+                        }
+                    },
+                    error: function(res){
+                        msg_pesan('Hapus Siswa Gagal. ','error');
+                    }
+                });
+              }
+            });
+	};
+</script>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% load static %}
+<form method="POST" action="{{link}}" id="frm_siswa" autocomplete="off" enctype="multipart/form-data">
+	{% csrf_token %}
+	  <div class="form-group row">
+	    <label for="nama_siswa" class="col-sm-3 col-form-label">Nama Peserta Didik</label>
+	    <div class="col-sm-9">
+	      <input type="text" name="nama_siswa" class="form-control form-control-user" required="" placeholder="NAMA" value="{{data_siswa.0.nama_siswa}}" id="nama_siswa">	
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="nis" class="col-sm-3 col-form-label">NIS</label>
+	    <div class="col-sm-9">
+	      <input type="text" name="nis" class="form-control form-control-user" required="" value="{{data_siswa.0.nis}}" placeholder="NIS" id="nis">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="kelas" class="col-sm-3 col-form-label">Kelas</label>
+	    <div class="col-sm-9">
+	    	<select id="kelas" name="kelas" class="form-control form-control-user" required="">
+	    		<option value="">- Pilih Kelas -</option>
+	    		{% for xx in data_kelas %}
+	    			<option value="{{xx.kode_kelas}}" {% if xx.kode_kelas == data_siswa.0.kelas_id %} selected="selected" {% endif %}>{{xx.nama_kelas}}</option>
+	    		{% endfor %}
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="jenis_kelamin" class="col-sm-3 col-form-label">Jenis Kelamin</label>
+	    <div class="col-sm-9">
+	    	<select id="jenis_kelamin" name="jenis_kelamin" class="form-control form-control-user" required="">
+	    		<option value="" {% if '' == data_siswa.0.jenis_kelamin %} selected="selected" {% endif %}>- Pilih Jenis Kelamin -</option>
+	    		<option value="L" {% if 'L' == data_siswa.0.jenis_kelamin %} selected="selected" {% endif %}>LAKI - LAKI</option>
+	    		<option value="P" {% if 'P' == data_siswa.0.jenis_kelamin %} selected="selected" {% endif %}>PEREMPUAN</option>
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="tempat_lahir" class="col-sm-3 col-form-label">Tempat Lahir</label>
+	    <div class="col-sm-9">
+	      <input type="text" name="tempat_lahir" class="form-control form-control-user" required="" value="{{data_siswa.0.tempat_lahir}}" placeholder="TEMPAT LAHIR" id="tempat_lahir">
+	     </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="tgl_lahir" class="col-sm-3 col-form-label">Tanggal Lahir</label>
+	    <div class="col-sm-9">
+	      <input type="date" name="tgl_lahir" class="form-control form-control-user" required="" placeholder="" value="{{data_siswa.0.tanggal_lahir|date:'Y-m-d'}}" id="tgl_lahir">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="alamat" class="col-sm-3 col-form-label">Alamat</label>
+	    <div class="col-sm-9">
+	    	<textarea style="resize: none;" name="alamat" class="form-control form-control-user" required="" id="alamat">{{data_siswa.0.alamat}}</textarea>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="agama" class="col-sm-3 col-form-label">Agama</label>
+	    <div class="col-sm-9">
+	    	<select name="agama" class="form-control form-control-user" required="" id="agama">
+	    		<option value="" {% if '' == data_siswa.0.jenis_kelamin %} selected="selected" {% endif %}>- Pilih Agama -</option>
+	    		<option value="ISLAM" {% if 'ISLAM' == data_siswa.0.agama %} selected="selected" {% endif %}>ISLAM</option>
+	    		<option value="KRISTEN" {% if 'KRISTEN' == data_siswa.0.agama %} selected="selected" {% endif %}>KRISTEN</option>
+	    		<option value="KATOLIK" {% if 'KATOLIK' == data_siswa.0.agama %} selected="selected" {% endif %}>KATOLIK</option>
+	    		<option value="HINDU" {% if 'HINDU' == data_siswa.0.agama %} selected="selected" {% endif %}>HINDU</option>
+	    		<option value="BUDHA" {% if 'BUDHA' == data_siswa.0.agama %} selected="selected" {% endif %}>BUDHA</option>
+	    		<option value="KONGHUCU" {% if 'KONGHUCU' == data_siswa.0.agama %} selected="selected" {% endif %}>KONGHUCU</option>
+	    	</select>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="nohp" class="col-sm-3 col-form-label">No. Handphone/WA</label>
+	    <div class="col-sm-9">
+	      <input type="text" name="nohp" class="form-control form-control-user" maxlength="13" required="" placeholder="NO HANDPHONE / WA" value="{{data_siswa.0.no_hp}}" id="nohp" onkeydown="isPhoneKey(event)">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="informasi_lain" class="col-sm-3 col-form-label">Informasi Lain</label>
+	    <div class="col-sm-9">
+	      <textarea style="resize: none;" name="informasi_lain" class="form-control form-control-user" id="informasi_lain">{{data_siswa.0.informasi_lain}}</textarea>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="foto" class="col-sm-3 col-form-label">Foto</label>
+	    <div class="col-sm-2">
+	    	<img id="frame" {% if type_ == 'edit' %} src="{% static 'images/f_profil/' %}{{data_siswa.0.foto}}" {% endif %} width="100px" height="120px"/>
+	    </div>
+	    <div class="col-sm-7">
+		    <input type="file" name="foto" class="form-control form-control-user" {% if type_ == 'add' %} required="" {% endif %} placeholder="" onchange="load_image(this)" id="foto" accept="image/*">
+	     </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="email" class="col-sm-3 col-form-label">E-mail</label>
+	    <div class="col-sm-9">
+	      <input type="email" name="email" class="form-control form-control-user" required="" value="{{data_siswa.0.email}}" placeholder="E-mail" id="email">
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="password" class="col-sm-3 col-form-label">Password</label>
+	    <div class="col-sm-9">
+	      <input type="password" name="password" class="form-control form-control-user" required="" value="{{data_login}}" placeholder="Password" id="password">
+	    </div>
+	  </div>
+  <button onclick="do_validation(this, event)" class="btn btn-primary" url-log="{% url 'bimbel_app:vali_log' %}">Input</button>
+</form>
+
+<script type="text/javascript">
+	function load_image(input) {
+	   frame.src=URL.createObjectURL(event.target.files[0]);
+	}
+	function do_validation(e, ev){
+		ev.preventDefault();
+
+		if ($("#frm_siswa")[0].checkValidity()) {
+			var todaysDate = new Date();
+			var val_date = new Date($('#tgl_lahir').val());
+
+			var file = $('#foto')[0].files[0];
+			if ("{{type_}}" == 'add') {
+				var fileType = file["type"];
+			}
+			var validImageTypes = ["image/jpg", "image/jpeg", "image/png"];
+			
+			if(val_date.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)) {
+			    msg_pesan('Tanggal Tidak Boleh Sama Dengan Hari Ini. ','error');
+			}else if(val_date.setHours(0,0,0,0) > todaysDate.setHours(0,0,0,0)){
+				msg_pesan('Tanggal Tidak Boleh Lebih Dari Hari Ini. ','error');
+			}else if ($.inArray(fileType, validImageTypes) < 0 && "{{type_}}" == 'add') {
+		    	msg_pesan('Foto Harus Berupa Gambar. ','error');
+			}else if(!validate_login($(e).attr('url-log'), $('#email').val()) && $('#email').val() != "{{data_siswa.0.email}}")
+				msg_pesan('Email Sudah Pernah Dipakai. ','error');
+			else{
+				$( "#frm_siswa" ).submit();
+			}
+			
+		}else{
+			msg_pesan('Pastikan Form Terisi Dengan Benar. ','error');
+			return false;
+		}
+		
+	}
+
+	function validate_login(url, uname){
+		var is_val_log = false;
+
+		$.ajax({
+            type: "POST",
+            headers: { "X-CSRFToken": csrf_token },
+            url: url,
+            data: {'uname':uname},
+            dataType: 'json',
+            async: false,
+            success: function(res){
+                is_val_log = res['status']
+            },
+            error: function(res){
+                msg_pesan('Validasi Akun Login Gagal. Cobalah Beberapa Saat Lagi.','error');
+                is_val_log = false;
+            }
+        });
+    return is_val_log;
+	}
+</script>
